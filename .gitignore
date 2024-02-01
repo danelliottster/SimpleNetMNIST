@@ -188,9 +188,11 @@ pyrightconfig.json
 
 data/
 flagged/
-models/
 runs/
 
 simpnet.py
 utils.py
 train.py
+
+models/*
+!models/simpnet_slim_310k.pt
