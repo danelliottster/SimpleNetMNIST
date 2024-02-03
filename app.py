@@ -1,7 +1,7 @@
 import gradio as gr
 import torch
 
-from torchvision.transforms.functional import pad, resize, to_tensor
+from torchvision.transforms.functional import resize, to_tensor
 
 from simpnet import SimpnetSlim310K
 
@@ -20,8 +20,8 @@ CLASSES = (
 
 MODEL_PATH = "models/simpnet_slim_310k.pt"
 
-simpnet_slim = SimpnetSlim310K(1, len(CLASSES), 64)
-simpnet_slim.load_state_dict(torch.load(MODEL_PATH))
+simpnet_slim = SimpnetSlim310K(1, len(CLASSES))
+simpnet_slim.load_state_dict(torch.load(MODEL_PATH, map_location="cpu"))
 
 def predict(image):
     if image is None:
@@ -29,16 +29,16 @@ def predict(image):
 
     simpnet_slim.eval()
     with torch.inference_mode():
-        X = pad(resize(to_tensor(image), [28, 28], antialias=True), [2])
-        logits = simpnet_slim(X.unsqueeze(0))
+        x = to_tensor(resize(image, [32, 32])).unsqueeze(0)
+        logits = simpnet_slim(x)
         probs = torch.softmax(logits, dim=1)
 
     return dict(zip(CLASSES, map(torch.Tensor.item, probs.squeeze())))
 
 app = gr.Interface(
     fn=predict,
-    inputs="sketchpad",
-    outputs="label",
+    inputs=gr.Sketchpad(image_mode="L", type="pil"),
+    outputs=gr.Label(),
     live=True
 )
 

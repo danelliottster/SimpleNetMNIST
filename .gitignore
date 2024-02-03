@@ -190,10 +190,6 @@ data/
 flagged/
 runs/
 
-simpnet.py
-utils.py
-train.py
-
 models/*
 !models/simpnet_slim_310k.pt
 !models/simpnet_slim_310k_emnist.pt
