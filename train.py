@@ -5,6 +5,7 @@ Train and test PyTorch models with data loaders.
 import torch
 
 from pathlib import Path
+from typing import Optional
 
 from torch import nn
 from torch.utils.data import DataLoader
@@ -27,10 +28,7 @@ def train_one_epoch(model: nn.Module,
     running_loss = 0.
     running_acc = 0.
 
-    for i, data in enumerate(tqdm(dataloader,
-                                  desc="Train",
-                                  leave=False,
-                                  unit="batch")):
+    for data in dataloader:
         inputs, labels = data
 
         inputs = inputs.to(device)
@@ -63,10 +61,7 @@ def test_one_epoch(model: nn.Module,
     running_acc = 0.
 
     with torch.inference_mode():
-        for i, data in enumerate(tqdm(dataloader,
-                                      desc="Test",
-                                      leave=False,
-                                      unit="batch")):
+        for data in dataloader:
             inputs, labels = data
             inputs = inputs.to(device)
             labels = labels.to(device)
@@ -87,9 +82,9 @@ def train_test_loop(model: nn.Module,
                     *,
                     epochs: int = 5,
                     device: torch.device = device,
-                    print: bool = True,
-                    writer: SummaryWriter = None,
-                    save_to = None
+                    print_epochs: Optional[int] = True,
+                    writer: Optional[SummaryWriter] = None,
+                    save_to: Optional[str | Path] = None
                     ):
     """
     Train and test a model using the given train and test data loaders, loss
@@ -102,7 +97,7 @@ def train_test_loop(model: nn.Module,
     :param optimizer: optimizer
     :param epochs: train for this many iterations
     :param device: device to train the model on
-    :param print: print loss and accuracy to `stdout`
+    :param print_epochs: print results every this many epochs
     :param writer: a summary writer to write statistics to
     :param save_to: a path to save the model with highest accuracy
     """    
@@ -127,7 +122,7 @@ def train_test_loop(model: nn.Module,
             device
         )
 
-        if print:
+        if print_epochs is not None and epoch % print_epochs == 0:
             tqdm.write(
                 f"epoch: {epoch:5d} |"
                 f" train loss: {avg_train_loss:.3f} |"
