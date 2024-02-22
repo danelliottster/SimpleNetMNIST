@@ -9,7 +9,7 @@ from typing import Optional
 
 from torch import nn
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard.writer import SummaryWriter
 from tqdm.auto import tqdm
 
 from utils import get_available_device
